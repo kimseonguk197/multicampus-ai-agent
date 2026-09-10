@@ -39,8 +39,11 @@ def generate_response_langchain(user_message: str, data: str) -> str:
     #  LCEL(LangChain Expression Language) 
     #  파이프 연산자로 컴포넌트를 연결하는 방식
     chain = prompt | llm_response | StrOutputParser()
-    return chain.invoke({"data": data, "user_message": user_message})
-
+    response = chain.invoke({
+        "data": data,
+        "user_message": user_message
+    })
+    return response
 
 # history(메모리)와 함께 llm응답 생성
 def generate_response_langchain_memory(user_message: str, data: str, history: list = None) -> str:
@@ -59,10 +62,12 @@ def generate_response_langchain_memory(user_message: str, data: str, history: li
         ("user", "{user_message}"),
     ])
     chain = prompt | llm_response | StrOutputParser()
-    return chain.invoke({
-        "data": data or "",  # None이면 빈 문자열로 폴백
+
+    response = chain.invoke({
+        "data": data,
         "user_message": user_message,
-        "history": history or [],  # None이면 빈 리스트로 폴백
+        "history": history or [],
     })
+    return response
 
 
