@@ -42,3 +42,7 @@ uvicorn app.main:app --reload
 - 사용자 질의 분류 작업으로 sLLM 도입(llama3.2)
 - sLLM의 효과적 사용을 위해 lora 튜닝
 - 튜닝작업 및 실행의 경우 성능문제로 runpod환경에서 gpu PC로 진행
+
+## 일반질문 확장
+- 사용자의 조회 요청에 대한 실시간 SQL 생성
+- 사용자의 추가/수정 등의 요청에 대한 실시간 API 연결
