@@ -30,16 +30,16 @@ def create_chat(
         response_text = cached_response
 
     else:
-        # action = classify_message(body.message)
-        action = classify_message_langchain(body.message)
+        action = classify_message(body.message)
+        # action = classify_message_langchain(body.message)
         print(action)
         if action == "get_my_orders":
             orders = my_orders(db=db, current_member=current_member)
             print(orders)
             data = _format_orders(orders)
             print(data)
-            # response_text = generate_response(body.message, data)
-            response_text = generate_response_langchain(body.message, data)
+            response_text = generate_response(body.message, data)
+            # response_text = generate_response_langchain(body.message, data)
         # 민감정보의 경우 sLLM을 통해 응답생성
         elif action == "get_my_profile":
             member = my_page(current_member=current_member)

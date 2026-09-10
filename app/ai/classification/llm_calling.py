@@ -12,8 +12,7 @@ def classify_message(message: str) -> str:
         messages=[{"role": "user", "content": message}],
         tools=TOOLS,
         tool_choice="auto",
-        temperature=0,
-        max_completion_tokens=20
+        temperature=0
         )
     tool_calls = response.choices[0].message.tool_calls
     if not tool_calls:
@@ -35,5 +34,6 @@ def generate_response(user_message: str, data: str) -> str:
             },
         ],
         temperature=0.3,
+        # max_completion_tokens=100
     )
     return response.choices[0].message.content.strip()
