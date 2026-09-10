@@ -12,8 +12,9 @@ def classify_message(message: str) -> str:
         messages=[{"role": "user", "content": message}],
         tools=TOOLS,
         tool_choice="auto",
-        temperature=0
-    )
+        temperature=0,
+        max_completion_tokens=20
+        )
     tool_calls = response.choices[0].message.tool_calls
     if not tool_calls:
         return "답변이 어려운 질문입니다."

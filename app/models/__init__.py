@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Enu
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 from app.database import Base
-import enum
 
 
 class Member(Base):
@@ -26,11 +25,11 @@ class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
+    member_id = Column(Integer, ForeignKey("members.id"), nullable=False)
     name = Column(String, nullable=False)
     category = Column(String, nullable=False)
     price = Column(Float, nullable=False)
     stock = Column(Integer, nullable=False, default=0)
-    member_id = Column(Integer, ForeignKey("members.id"), nullable=False)
     del_yn = Column(String(1), nullable=False, default='N')
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 

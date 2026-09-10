@@ -15,9 +15,10 @@ def create_product(
     db: Session = Depends(get_db),
     current_member: models.Member = Depends(get_current_member),
 ):
-    return product_service.register_product(
+    product = product_service.register_product(
         db, current_member.id, body.name, body.category, body.price, body.stock
     )
+    return product
 
 @router.get("", response_model=List[schemas.ProductResponse])
 def list_products(
@@ -40,7 +41,8 @@ def update_product(
     current_member: models.Member = Depends(get_current_member),
 ):
     
-    return product_service.update_product(
+    product = product_service.update_product(
         db, current_member.id, product_id, **body.model_dump(exclude_unset=True)
     )
+    return product
 
