@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
-from app.text_to_sql.schema_context import ALLOWED_TABLES, PERSONAL_TABLES
+from app.text_to_sql.sql.schema_context import ALLOWED_TABLES, PERSONAL_TABLES
 
 #  보안: 절대 허용하지 않는 SQL 키워드 블랙리스트
 # ─────────────────────────────────────────────────────────────

@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 
-from app.text_to_sql.sql_generator import generate_sql, fix_sql
-from app.text_to_sql.sql_validator import validate_and_correct
-from app.text_to_sql.sql_executor import execute_sql
-from app.text_to_sql.llm_response import format_sql_result, format_error_response
+from app.text_to_sql.sql.generator import generate_sql, fix_sql
+from app.text_to_sql.sql.validator import validate_and_correct
+from app.text_to_sql.sql.executor import execute_sql
+from app.text_to_sql.sql.response import format_sql_result, format_error_response
 
 
 def call_sql_pipeline(

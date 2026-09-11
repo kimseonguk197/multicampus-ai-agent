@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app import models
 from app.services import order_service
 
-#  Tool 스키마 (OpenAI function calling 형식)
-TOOL_SCHEMAS = [
+#  Action 스키마 (OpenAI function calling 형식)
+ACTION_SCHEMAS = [
     {
         "type": "function",
         "function": {
@@ -80,7 +80,7 @@ def _place_order(args: dict, db: Session, member_id: int) -> str:
     )
 
 
-# "tool 이름 : handler 함수" 매핑
+# "action 이름 : handler 함수" 매핑
 HANDLERS = {
     "place_order": _place_order,
     "cancel_order": _cancel_order,

@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from app.text_to_sql.schema_context import (
+from app.text_to_sql.sql.schema_context import (
     get_schema_context,
     get_schema_context_by_tables,
     TABLE_DESCRIPTIONS,

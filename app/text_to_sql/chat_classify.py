@@ -1,34 +1,8 @@
 # 사용자 메시지의 의도를 3가지로 분류하여 각 파이프라인으로 라우팅
 import os
-from sqlalchemy.orm import Session
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-
-from app.text_to_sql.sql_pipeline import call_sql_pipeline
-from app.text_to_sql.llm_response import format_general_response
-from app.text_to_sql.tools.tool_pipeline import call_tool_pipeline
-
-
-# 사용자 메시지를 받아 의도에 맞는 파이프라인을 실행
-def process_chat(
-    user_message: str,
-    db: Session,
-    current_member_id: int,
-) -> str:
-    # 가장 먼저 사용자 메시지 분류작업
-    intent = classify_intent(user_message)
-    print(f"[파이프라인] 의도 분류 결과: {intent}")
-
-    # 1)질의를 SQL로 변환(TEXT-TO-SQL)
-    if intent == "QUERY":
-        return call_sql_pipeline(user_message, db, current_member_id)
-    # 2)기존API활용 작업(insert, update 등)
-    elif intent == "ACTION":
-        return call_tool_pipeline(user_message, db, current_member_id)
-    # 3)DB 작업 없는 일반 LLM응답
-    else:
-        return format_general_response(user_message)
 
 
 #  의도 분류 LLM. 

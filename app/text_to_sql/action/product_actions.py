@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.services import product_service
 
-#  Tool 스키마 (OpenAI function calling 형식)
-TOOL_SCHEMAS = [
+#  Action 스키마 (OpenAI function calling 형식)
+ACTION_SCHEMAS = [
     {
         "type": "function",
         "function": {
@@ -70,7 +70,7 @@ TOOL_SCHEMAS = [
 ]
 
 
-#  개별 tool 구현
+#  개별 action 구현
 def _update_product(args: dict, db: Session, member_id: int) -> str:
     product_id: int = args["product_id"]
     fields = {k: v for k, v in args.items() if k != "product_id"}
@@ -107,7 +107,7 @@ def _register_product(args: dict, db: Session, member_id: int) -> str:
     )
 
 
-# tool 이름 → handler 함수 매핑 (registry가 이 dict를 직접 사용)
+# action 이름 → handler 함수 매핑 (registry가 이 dict를 직접 사용)
 HANDLERS = {
     "register_product": _register_product,
     "update_product": _update_product,
