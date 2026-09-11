@@ -18,7 +18,6 @@ langchain-text-splitters # LangChain chunking utility
 langchain-community # BM25Retriever 
 langchain_ollama
 rank-bm25 # BM25 algorithm (langchain-community BM25Retriever related)
-notion-client # Notion API client
 
 # Redis cache
 redis[hiredis] 
