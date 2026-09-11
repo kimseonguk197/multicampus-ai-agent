@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 from app.dependencies import get_db, get_current_member
 from app.text_to_sql.chat_classify import classify_intent
-from app.text_to_sql.sql.pipeline import call_sql_pipeline
-from app.text_to_sql.action.pipeline import call_action_pipeline
+from app.text_to_sql.sql.sql_pipeline import call_sql_pipeline
+from app.text_to_sql.action.action_pipeline import call_action_pipeline
 from app.text_to_sql.general_response import format_general_response
 
 router_v2 = APIRouter(prefix="/chats/v2")

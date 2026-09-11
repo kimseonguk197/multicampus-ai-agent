@@ -8,6 +8,45 @@ from langchain_core.output_parsers import StrOutputParser
 
 from app.text_to_sql.action.registry import get_category_descriptions, get_schemas_by_category, execute_action, CATEGORIES
 
+
+# 사용자 메시지로부터 적절한 action(api)을 선택하고 실행
+def call_action_pipeline(user_message: str, db: Session, member_id: int) -> str:
+    # 1.함수 카테고리 분류(order, product 등)
+    category = _classify_category(user_message)
+    if category is None:
+        return "처리할 수 없는 요청입니다."
+
+    # 2.분류된 카테고리의 함수 가져오기(place_order 인지, cancel_order인지)
+    action_schemas = get_schemas_by_category(category)
+    llm_with_actions = _llm.bind_tools(action_schemas)
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", """당신은 사용자의 요청을 분석하여 적절한 함수를 호출하는 도우미입니다.
+                    사용자의 요청에서 필요한 정보를 추출하여 함수를 호출하세요.
+                    함수 호출에 필요한 파라미터가 불명확한 경우, 함수를 호출하지 말고 어떤 정보가 필요한지 안내하세요."""),
+        ("user", "{user_message}"),
+    ])
+    chain = prompt | llm_with_actions
+    response = chain.invoke({"user_message": user_message})
+    print(response)
+    # 3.LLM이 함수명(action)을 선택하지 않은 경우 (파라미터 부족 등)
+    if not response.tool_calls:
+        print("[action_pipeline] action 미선택 → LLM 직접 응답 반환")
+        return response.content or "요청을 처리하려면 더 구체적인 정보가 필요합니다."
+
+    action_call = response.tool_calls[0]
+    action_name = action_call["name"]
+    args = action_call["args"]
+
+    print(f"[action_pipeline] 실행 | action={action_name} | args={args}")
+
+    try:
+        return execute_action(action_name, args, db, member_id)
+    except Exception as e:
+        print(f"[action_pipeline] 실행 실패 | action={action_name} | error={e}")
+        return f"요청 처리 중 오류가 발생했습니다: {str(e)}"
+
+
+
 # 1단계: 카테고리 분류용 LLM
 # 파라미터 추출은 창의성 불필요하므로, temperature=0. 카테고리 이름만 출력하면 되므로 max_tokens 최소화
 _llm_classify = ChatOpenAI(
@@ -46,40 +85,3 @@ def _classify_category(user_message: str) -> str:
         return None
     print(f"[action_pipeline] 카테고리 분류: {category}")
     return category
-
-
-# 사용자 메시지로부터 적절한 action(api)을 선택하고 실행
-def call_action_pipeline(user_message: str, db: Session, member_id: int) -> str:
-    # 1.함수 카테고리 분류(order, product 등)
-    category = _classify_category(user_message)
-    if category is None:
-        return "처리할 수 없는 요청입니다."
-
-    # 2.분류된 카테고리의 함수 가져오기(place_order 인지, cancel_order인지)
-    action_schemas = get_schemas_by_category(category)
-    llm_with_actions = _llm.bind_tools(action_schemas)
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", """당신은 사용자의 요청을 분석하여 적절한 함수를 호출하는 도우미입니다.
-                    사용자의 요청에서 필요한 정보를 추출하여 함수를 호출하세요.
-                    함수 호출에 필요한 파라미터가 불명확한 경우, 함수를 호출하지 말고 어떤 정보가 필요한지 안내하세요."""),
-        ("user", "{user_message}"),
-    ])
-    chain = prompt | llm_with_actions
-    response = chain.invoke({"user_message": user_message})
-    print(response)
-    # 3.LLM이 함수명(action)을 선택하지 않은 경우 (파라미터 부족 등)
-    if not response.tool_calls:
-        print("[action_pipeline] action 미선택 → LLM 직접 응답 반환")
-        return response.content or "요청을 처리하려면 더 구체적인 정보가 필요합니다."
-
-    action_call = response.tool_calls[0]
-    action_name = action_call["name"]
-    args = action_call["args"]
-
-    print(f"[action_pipeline] 실행 | action={action_name} | args={args}")
-
-    try:
-        return execute_action(action_name, args, db, member_id)
-    except Exception as e:
-        print(f"[action_pipeline] 실행 실패 | action={action_name} | error={e}")
-        return f"요청 처리 중 오류가 발생했습니다: {str(e)}"
