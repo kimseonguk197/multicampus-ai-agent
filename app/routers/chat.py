@@ -8,12 +8,12 @@ from app.ai.rag.retriever import search_policy
 from app.ai.rag.llm_calling_langchain import classify_message_langchain
 from app.ai.rag.llm_calling_langchain import generate_response_langchain_memory
 from app.ai.rag.llm_calling_langchain import generate_response_langchain
+from app.ai.rag.llm_calling_langchain import generate_response_langchain_sllm
 from app.ai.rag.memory import load_chat_history
 from app.routers.order import my_orders
 from app.routers.member import my_page
 
 from app.ai.rag.semantic_cache import semantic_cache
-from app.ai.sllm_pinetunning.sllm_model_request import generate_response_sllm
 
 router = APIRouter(prefix="/chats", tags=["chat"])
 @router.post("", response_model=schemas.ChatResponse, status_code=status.HTTP_201_CREATED)
@@ -46,7 +46,7 @@ def create_chat(
             print(member)
             data = _format_profile(member)
             print(data)
-            response_text = generate_response_sllm(body.message, data)
+            response_text = generate_response_langchain_sllm(body.message, data)
         else:
             context = search_policy(body.message)
             # response_text = generate_response(body.message, context)
@@ -91,7 +91,7 @@ def _format_profile(member: list) -> str:
 
 
 
-from app.ai.sllm_pinetunning.sllm_classification import sllm_classifier
+from app.ai.sllm_pinetunning.sllm_classification import classify_message_sllm
 @router.post("/tunning")
 def create_chat_tunning(
     body: schemas.ChatRequest,
@@ -99,12 +99,9 @@ def create_chat_tunning(
     current_member: models.Member = Depends(get_current_member),
 ):
     # tunning 분류기
-    action = sllm_classifier(body.message)
+    action = classify_message_sllm(body.message)
     print(action)
     return {"action": action}
-
-
-
 
 from app.services.chat_v2_service import process_chat
 router_v2 = APIRouter(prefix="/chats/v2")

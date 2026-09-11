@@ -1,5 +1,6 @@
 import os
 from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from app.ai.classification.classification_list import TOOLS
@@ -14,6 +15,12 @@ llm_response = ChatOpenAI(
     model="gpt-4.1-mini",
     api_key=os.getenv("OPENAI_API_KEY"),
     temperature=0.3  
+)
+
+
+llm_response = ChatOllama(
+    model="llama3.2:3b",
+    temperature=0.3
 )
 
 # langchain에서는 아래와 같이 모델만 변경하면 쉽게 코드 리팩토링 가능 
@@ -71,3 +78,19 @@ def generate_response_langchain_memory(user_message: str, data: str, history: li
     return response
 
 
+
+
+def generate_response_langchain_sllm(user_message: str, data: str) -> str:
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "사용자의 질문에 대해 아래 참고 데이터를 바탕으로 사용자의 질문에 답변해. 만약 참고데이터에 적절한 내용이 없으면 응답불가합니다 라고 답변해. \n\n[참고 데이터]\n{data}"),
+        ("user", "{user_message}"),
+    ])
+    #  LCEL(LangChain Expression Language) 
+    #  파이프 연산자로 컴포넌트를 연결하는 방식
+    chain = prompt | llm_response | StrOutputParser()
+    response = chain.invoke({
+        "data": data,
+        "user_message": user_message
+    })
+    print("sllm을 통한 응답 요청")
+    return response

@@ -1,29 +1,17 @@
-import requests
+from langchain_ollama import ChatOllama
+from app.ai.classification.classification_list import TOOLS
 
-VALID_LABELS = ["get_my_orders", "get_my_profile", "get_policy"]
+llm_classify = ChatOllama(
+    model="llama3.2:3b",
+    temperature=0
+)
 
+llm_with_tools = llm_classify.bind_tools(TOOLS)
 
-def sllm_classifier(user_message: str) -> str:
-    prompt = (
-        "아래 질문을 읽고 반드시 다음 세 가지 중 하나만 출력해. 다른 말은 절대 하지 마.\n"
-        "- get_my_orders\n"
-        "- get_my_profile\n"
-        "- get_policy\n\n"
-        f"질문: {user_message}\n"
-        "출력:"
-    ) 
+def classify_message_sllm(message: str) -> str:
+    response = llm_with_tools.invoke(message)
 
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={"model": "llama3.2:3b", "prompt": prompt, "stream": False},
-        timeout=300,
-    )
-    response.raise_for_status()
-    raw = response.json()["response"].strip()
-    print(raw)
-    # 후처리: 유효한 레이블 포함 여부 확인
-    for label in VALID_LABELS:
-        if label in raw:
-            return label
+    if not response.tool_calls:
+        return "응답불가합니다"
 
-    return "응답불가합니다"
+    return response.tool_calls[0]["name"]
