@@ -65,14 +65,18 @@ def generate_sql(user_message: str) -> str:
     schema = get_schema_context()
     # relevant_tables = _select_relevant_tables(user_message)
     # schema = get_schema_context_by_tables(relevant_tables)
-    chain = SQL_GENERATION_PROMPT | llm_sql | StrOutputParser()
-    raw_sql = chain.invoke({
+    chain = SQL_GENERATION_PROMPT | llm_sql
+    
+    response = chain.invoke({
         "schema": schema,
         "examples": FEW_SHOT_EXAMPLES,
         "user_message": user_message,
     })
+    print("입력 토큰사용량:", response.usage_metadata["input_tokens"])
+    print("출력 토큰사용량:", response.usage_metadata["output_tokens"])
+    print("전체 토큰사용량:", response.usage_metadata["total_tokens"])
 
-    return raw_sql
+    return response.content
 
 # 사용자 질문에서 관련 테이블을 LLM으로 선택
 def _select_relevant_tables(user_message: str) -> list[str]:
