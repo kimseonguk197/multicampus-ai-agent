@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.services import product_service
 
 #  Action 스키마 (OpenAI function calling 형식)
-ACTION_SCHEMAS = [
+ACTION_LIST = [
     {
         "type": "function",
         "function": {

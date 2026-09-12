@@ -19,13 +19,13 @@ def get_category_descriptions() -> str:
 
 
 #  카테고리 레지스트리 : dictionary에 파일자체를 매핑
-CATEGORIES: dict = {
+ACTION_CATEGORIES: dict = {
     "order": order_actions,
     "product": product_actions,
 }
-# 특정 카테고리의 ACTION_SCHEMAS만 반환
-def get_schemas_by_category(category: str) -> list:
-    return CATEGORIES[category].ACTION_SCHEMAS
+# 특정 카테고리의 ACTION_LIST만 반환
+def get_action_by_category(category: str) -> list:
+    return ACTION_CATEGORIES[category].ACTION_LIST
 
 
 # "action 이름 : handler 함수" 매핑 (각 모듈의 HANDLERS를 모두 합함)
@@ -35,7 +35,7 @@ def get_schemas_by_category(category: str) -> list:
 #     ...
 # }
 _ACTION_HANDLERS = {}
-for module in CATEGORIES.values():   # order_actions, product_actions
+for module in ACTION_CATEGORIES.values():   # order_actions, product_actions
     for name, handler in module.HANDLERS.items():
         _ACTION_HANDLERS[name] = handler
 

@@ -5,7 +5,7 @@ from app import models
 from app.services import order_service
 
 #  Action 스키마 (OpenAI function calling 형식)
-ACTION_SCHEMAS = [
+ACTION_LIST = [
     {
         "type": "function",
         "function": {

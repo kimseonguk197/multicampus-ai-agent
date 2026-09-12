@@ -6,7 +6,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from app.text_to_sql.action.registry import get_category_descriptions, get_schemas_by_category, execute_action, CATEGORIES
+from app.text_to_sql.action.registry import get_category_descriptions, get_action_by_category, execute_action, ACTION_CATEGORIES
 
 
 # 사용자 메시지로부터 적절한 action(api)을 선택하고 실행
@@ -17,8 +17,8 @@ def call_action_pipeline(user_message: str, db: Session, member_id: int) -> str:
         return "처리할 수 없는 요청입니다."
 
     # 2.분류된 카테고리의 함수 가져오기(place_order 인지, cancel_order인지)
-    action_schemas = get_schemas_by_category(category)
-    llm_with_actions = _llm.bind_tools(action_schemas)
+    action = get_action_by_category(category)
+    llm_with_actions = _llm.bind_tools(action)
     prompt = ChatPromptTemplate.from_messages([
         ("system", """당신은 사용자의 요청을 분석하여 적절한 함수를 호출하는 도우미입니다.
                     사용자의 요청에서 필요한 정보를 추출하여 함수를 호출하세요.
@@ -80,7 +80,7 @@ def _classify_category(user_message: str) -> str:
         "user_message": user_message,
     })
     category = result.strip().lower()
-    if category not in CATEGORIES:
+    if category not in ACTION_CATEGORIES:
         print(f"[action_pipeline] 알 수 없는 카테고리: '{category}' → 전체 fallback")
         return None
     print(f"[action_pipeline] 카테고리 분류: {category}")

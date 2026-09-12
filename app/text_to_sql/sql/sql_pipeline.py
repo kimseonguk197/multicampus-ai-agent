@@ -24,7 +24,7 @@ def call_sql_pipeline(
             # 4.이전 오류를 기반으로 SQL 수정 (Self-Correction)
             print(
                 f"[Text-to-SQL] SQL 수정 시도 #{attempt + 1} | "
-                f"이전 오류: {last_error[:60]}..."
+                f"이전 오류: {last_error}"
             )
             current_sql = fix_sql(current_sql, last_error)
             retry_count = attempt
