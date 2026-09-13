@@ -30,8 +30,8 @@ def create_chat(
         response_text = cached_response
 
     else:
-        # action = classify_message(body.message)
-        action = classify_message_langchain(body.message)
+        action = classify_message(body.message)
+        # action = classify_message_langchain(body.message)
         print(action)
         if action == "get_my_orders":
             orders = my_orders(db=db, current_member=current_member)
