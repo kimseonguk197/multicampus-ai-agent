@@ -18,7 +18,7 @@ llm_response = ChatOpenAI(
 )
 
 
-llm_response = ChatOllama(
+llm_response_llama = ChatOllama(
     model="llama3.2:3b",
     temperature=0.3
 )
@@ -87,7 +87,7 @@ def generate_response_langchain_sllm(user_message: str, data: str) -> str:
     ])
     #  LCEL(LangChain Expression Language) 
     #  파이프 연산자로 컴포넌트를 연결하는 방식
-    chain = prompt | llm_response | StrOutputParser()
+    chain = prompt | llm_response_llama | StrOutputParser()
     response = chain.invoke({
         "data": data,
         "user_message": user_message

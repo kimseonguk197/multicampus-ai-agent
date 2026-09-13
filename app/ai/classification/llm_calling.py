@@ -34,6 +34,6 @@ def generate_response(user_message: str, data: str) -> str:
             },
         ],
         temperature=0.3,
-        # max_completion_tokens=100
+        max_completion_tokens=100
     )
     return response.choices[0].message.content.strip()
