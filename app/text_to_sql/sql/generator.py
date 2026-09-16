@@ -4,7 +4,9 @@ import re
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_ollama import ChatOllama
 
+from app.ai.rag.vector_store import vector_store
 from app.text_to_sql.sql.schema_context import (
     get_schema_context,
     get_schema_context_by_tables,
@@ -59,11 +61,18 @@ SQL_FIX_PROMPT = ChatPromptTemplate.from_messages([
     ("user", "수정된 SQL을 생성해주세요."),
 ])
 
+from langchain_ollama import ChatOllama
+
+llm_classify = ChatOllama(
+    model="llama3.1:8b",
+    temperature=0
+)
 
 # 자연어 질문을 PostgreSQL SELECT 문으로 변환
 def generate_sql(user_message: str) -> str:
     schema = get_schema_context()
     # relevant_tables = _select_relevant_tables(user_message)
+    # relevant_tables = _select_vector(user_message)
     # schema = get_schema_context_by_tables(relevant_tables)
     chain = SQL_GENERATION_PROMPT | llm_sql
     
@@ -75,6 +84,7 @@ def generate_sql(user_message: str) -> str:
     print("입력 토큰사용량:", response.usage_metadata["input_tokens"])
     print("출력 토큰사용량:", response.usage_metadata["output_tokens"])
     print("전체 토큰사용량:", response.usage_metadata["total_tokens"])
+    print("토큰 상세:", response.usage_metadata.get("input_token_details"))
 
     return response.content
 
@@ -98,6 +108,14 @@ def _select_relevant_tables(user_message: str) -> list[str]:
         "user_message": user_message})
     selected = [t.strip().lower() for t in result.split(",") if t.strip().lower() in ALLOWED_TABLES]
     print(f"[테이블 선택] 질문: {user_message[:40]}... → {selected}")
+    return selected
+
+def _select_vector(user_message: str) -> list[str]:
+    results = vector_store.similarity_search_with_relevance_scores(user_message, k=top_k)
+    for doc, score in results:
+        print(f"{score:.4f} | {doc.page_content}")
+    selected = [table for doc, _ in results if (table := doc.page_content.split(":")[0]) in ALLOWED_TABLES]
+    print(f"[벡터 테이블 선택] 질문: {user_message[:40]}... → {selected}")
     return selected
 
 
