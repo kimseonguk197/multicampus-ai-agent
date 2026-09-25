@@ -122,7 +122,6 @@ def train_lora():
         eval_strategy="no",
         optim="adamw_torch",
         lr_scheduler_type="cosine",
-        warmup_ratio=0.03,
         report_to="none",
         remove_unused_columns=False,
     )
